@@ -9,25 +9,18 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { isAuthenticated, loading, signOut, user } = useAuth();
+  const { isAuthenticated, signOut, user } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
-    if (!loading && !isAuthenticated) {
+    // Como o estado nasce síncrono agora, o redirecionamento é imediato
+    if (!isAuthenticated) {
       router.push('/login');
     }
-  }, [isAuthenticated, loading, router]);
-
-  if (loading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-600 border-t-transparent"></div>
-      </div>
-    );
-  }
+  }, [isAuthenticated, router]);
 
   if (!isAuthenticated) {
-    return null;
+    return null; // O router.push fará o trabalho, mas retornamos null para não vazar a UI
   }
 
   return (

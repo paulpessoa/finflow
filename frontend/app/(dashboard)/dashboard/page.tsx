@@ -1,17 +1,27 @@
 'use client';
 
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { apiFetch } from "@/lib/api";
-import { TransactionSummary } from "@shared/types";
+import { useTransactionSummary } from "@/hooks/useTransactions";
+import { queryKeys } from "@/constants/queryKeys";
+import { useQueryClient } from "@tanstack/react-query";
+import { 
+  PieChart, 
+  Pie, 
+  Cell, 
+  ResponsiveContainer, 
+  Tooltip, 
+  Legend,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid
+} from 'recharts';
+
+import { CardSkeleton, Skeleton } from "@/components/Skeleton";
 
 export default function DashboardPage() {
   const queryClient = useQueryClient();
-
-  // O useQuery substitui o useEffect e o useState!
-  const { data: summary, isLoading, isFetching } = useQuery({
-    queryKey: ['summary'],
-    queryFn: () => apiFetch<TransactionSummary>('/api/transactions/summary'),
-  });
+  const { data: summary, isLoading, isFetching } = useTransactionSummary();
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {
@@ -20,20 +30,43 @@ export default function DashboardPage() {
     }).format(value);
   };
 
-  // Função para invalidar o cache e forçar um novo fetch
   const handleRefresh = () => {
-    queryClient.invalidateQueries({ queryKey: ['summary'] });
+    queryClient.invalidateQueries({ queryKey: queryKeys.transactions.all });
   };
 
   if (isLoading) return (
-    <div className="flex items-center justify-center py-20">
-      <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-600 border-t-transparent"></div>
-      <span className="ml-3 text-zinc-600">Calculando finanças...</span>
+    <div className="space-y-8 pb-12">
+      <div className="flex items-center justify-between">
+        <Skeleton className="h-8 w-48" />
+        <Skeleton className="h-10 w-32" />
+      </div>
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <CardSkeleton />
+        <CardSkeleton />
+        <CardSkeleton />
+      </div>
+      <div className="grid gap-6 lg:grid-cols-2">
+        <Skeleton className="h-80 w-full rounded-xl" />
+        <Skeleton className="h-80 w-full rounded-xl" />
+      </div>
     </div>
   );
 
+  // Dados para o gráfico de pizza (Gastos por Categoria)
+  const pieData = summary?.byCategory.map(cat => ({
+    name: cat.name,
+    value: Number(cat.total),
+    color: cat.color
+  })) || [];
+
+  // Dados para o gráfico de barras (Entradas vs Saídas)
+  const barData = [
+    { name: 'Entradas', valor: summary?.income || 0, color: '#16a34a' },
+    { name: 'Saídas', valor: summary?.expense || 0, color: '#dc2626' }
+  ];
+
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 pb-12">
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">Dashboard</h2>
@@ -50,23 +83,16 @@ export default function DashboardPage() {
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {/* Card Entradas */}
         <div className="rounded-xl border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
           <p className="text-sm font-medium text-zinc-500 dark:text-zinc-400">Total de Entradas</p>
-          <p className="mt-2 text-3xl font-bold text-green-600">
-            {formatCurrency(summary?.income || 0)}
-          </p>
+          <p className="mt-2 text-3xl font-bold text-green-600">{formatCurrency(summary?.income || 0)}</p>
         </div>
 
-        {/* Card Saídas */}
         <div className="rounded-xl border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
           <p className="text-sm font-medium text-zinc-500 dark:text-zinc-400">Total de Saídas</p>
-          <p className="mt-2 text-3xl font-bold text-red-600">
-            {formatCurrency(summary?.expense || 0)}
-          </p>
+          <p className="mt-2 text-3xl font-bold text-red-600">{formatCurrency(summary?.expense || 0)}</p>
         </div>
 
-        {/* Card Saldo */}
         <div className="rounded-xl border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
           <p className="text-sm font-medium text-zinc-500 dark:text-zinc-400">Saldo Atual</p>
           <p className={`mt-2 text-3xl font-bold ${(summary?.balance || 0) >= 0 ? 'text-zinc-900 dark:text-zinc-50' : 'text-red-600'}`}>
@@ -75,9 +101,63 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Seção de Categorias */}
+      <div className="grid gap-6 lg:grid-cols-2">
+        {/* Gráfico de Barras - Comparativo */}
+        <div className="rounded-xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900">
+          <h3 className="text-lg font-medium mb-6">Comparativo Mensal</h3>
+          <div className="h-64 w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={barData}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e7eb" />
+                <XAxis dataKey="name" axisLine={false} tickLine={false} />
+                <YAxis axisLine={false} tickLine={false} tickFormatter={(value) => `R$ ${value}`} />
+                <Tooltip 
+                  formatter={(value: number) => formatCurrency(value)}
+                  contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                />
+                <Bar dataKey="valor" radius={[4, 4, 0, 0]}>
+                  {barData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* Gráfico de Pizza - Distribuição */}
+        <div className="rounded-xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900">
+          <h3 className="text-lg font-medium mb-6">Distribuição de Gastos</h3>
+          <div className="h-64 w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={pieData}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={60}
+                  outerRadius={80}
+                  paddingAngle={5}
+                  dataKey="value"
+                >
+                  {pieData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip 
+                  formatter={(value: number) => formatCurrency(value)}
+                  contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                />
+                <Legend verticalAlign="bottom" height={36}/>
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      </div>
+
+      {/* Lista de Categorias com Barras */}
       <div className="rounded-xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900">
-        <h3 className="text-lg font-medium">Gastos por Categoria</h3>
+        <h3 className="text-lg font-medium">Detalhamento por Categoria</h3>
         <div className="mt-6 space-y-4">
           {summary?.byCategory.map((cat) => (
             <div key={cat.id} className="flex items-center justify-between">
