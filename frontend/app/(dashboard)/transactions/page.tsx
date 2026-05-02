@@ -1,8 +1,15 @@
 'use client';
 
 import { useTransactions, useDeleteTransaction } from "@/hooks/useTransactions";
+import { useState } from "react";
+import { TransactionModal } from "@/components/TransactionModal";
+import { Transaction } from "@shared/types";
+
+import { TableRowSkeleton } from "@/components/Skeleton";
 
 export default function TransactionsPage() {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
   const { data: response, isLoading } = useTransactions();
   const deleteMutation = useDeleteTransaction();
 
@@ -17,22 +24,30 @@ export default function TransactionsPage() {
     return new Date(dateString).toLocaleDateString('pt-BR');
   };
 
+  const handleEdit = (transaction: Transaction) => {
+    setSelectedTransaction(transaction);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedTransaction(null);
+  };
+
+  const handleCreateNew = () => {
+    setSelectedTransaction(null);
+    setIsModalOpen(true);
+  };
+
   const handleDelete = async (id: string) => {
     if (confirm('Tem certeza que deseja excluir esta transação?')) {
       try {
         await deleteMutation.mutateAsync(id);
-        alert('Transação excluída com sucesso!');
       } catch (error) {
         alert('Erro ao excluir transação.');
       }
     }
   };
-
-  if (isLoading) return (
-    <div className="flex items-center justify-center py-20">
-      <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-600 border-t-transparent"></div>
-    </div>
-  );
 
   const transactions = response?.data || [];
 
@@ -43,10 +58,19 @@ export default function TransactionsPage() {
           <h2 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">Transações</h2>
           <p className="text-zinc-500 dark:text-zinc-400">Gerencie seu histórico financeiro detalhadamente.</p>
         </div>
-        <button className="inline-flex items-center justify-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 transition-colors">
+        <button 
+          onClick={handleCreateNew}
+          className="inline-flex items-center justify-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 transition-colors cursor-pointer"
+        >
           Nova Transação
         </button>
       </div>
+
+      <TransactionModal 
+        isOpen={isModalOpen} 
+        onClose={handleCloseModal} 
+        initialData={selectedTransaction}
+      />
 
       <div className="rounded-xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900 overflow-hidden">
         <div className="overflow-x-auto">
@@ -62,7 +86,15 @@ export default function TransactionsPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-zinc-200 dark:divide-zinc-800">
-              {transactions.length === 0 ? (
+              {isLoading ? (
+                <>
+                  <TableRowSkeleton />
+                  <TableRowSkeleton />
+                  <TableRowSkeleton />
+                  <TableRowSkeleton />
+                  <TableRowSkeleton />
+                </>
+              ) : transactions.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="px-6 py-12 text-center text-zinc-500">
                     Nenhuma transação encontrada.
@@ -102,11 +134,17 @@ export default function TransactionsPage() {
                     }`}>
                       {transaction.type === 'INCOME' ? '+' : '-'} {formatCurrency(transaction.amount)}
                     </td>
-                    <td className="px-6 py-4 text-sm text-right">
+                    <td className="px-6 py-4 text-sm text-right space-x-3">
+                      <button 
+                        onClick={() => handleEdit(transaction)}
+                        className="text-indigo-600 hover:text-indigo-500 cursor-pointer"
+                      >
+                        Editar
+                      </button>
                       <button 
                         onClick={() => handleDelete(transaction.id)}
                         disabled={deleteMutation.isPending}
-                        className="text-red-600 hover:text-red-500 disabled:opacity-50"
+                        className="text-red-600 hover:text-red-500 disabled:opacity-50 cursor-pointer"
                       >
                         {deleteMutation.isPending ? '...' : 'Excluir'}
                       </button>
