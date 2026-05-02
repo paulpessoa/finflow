@@ -43,9 +43,22 @@ O FinFlow é um Dashboard Financeiro Fullstack construído com **Next.js 15 (App
     *   **Conceito:** Fila de mensagens assíncronas. 
     *   **Aplicação no FinFlow:** Para tarefas pesadas (ex: processar um extrato bancário de 1 ano ou gerar relatórios em PDF), o backend jogaria a tarefa no SQS para ser processada por um Worker em background, mantendo a API rápida para o usuário.
 
-### I. Roadmap de Segurança Avançada
-*   **Access vs Refresh Tokens:** Implementação de tokens de curta duração (15min) e refresh tokens (30 dias) salvos no banco para maior segurança.
-*   **Recuperação de Senha:** Fluxo de *Forgot Password* usando tokens temporários e integração com serviço de e-mail (SMTP) para garantir que apenas o dono da conta recupere o acesso.
+### J. Tipagem de Elite: Entidades vs. DTOs
+*   **Decisão:** Uso de tipos compartilhados em `@shared/types` para as entidades, mas tipos específicos para formulários no Frontend.
+*   **Justificativa Sênior:** 
+    *   **Entidades:** Refletem a estrutura fiel do banco de dados (Prisma).
+    *   **DTOs/Form Data:** Refletem a necessidade da interface. Um formulário de criação não possui `id` ou `timestamps`, e lida com a conversão de `strings` do DOM para `numbers` do sistema. Essa separação evita o vazamento de lógica de banco para a UI.
+
+### K. Acessibilidade e Semântica HTML
+*   **Decisão:** Uso rigoroso de `htmlFor` em labels e atributos semânticos em inputs.
+*   **Justificativa Sênior:** 
+    *   Acessibilidade não é opcional. Vincular labels corretamente melhora a experiência de usuários que utilizam leitores de tela. 
+    *   Evitar atributos inválidos (como `name` em labels) garante que o navegador renderize o código da forma mais otimizada possível, conforme as especificações da W3C.
+
+### L. Arquitetura de Sessão: Injeção via SSR
+*   **Decisão:** O servidor lê os Cookies no `layout.tsx` e injeta o usuário no `AuthContext` via props.
+*   **Justificativa Sênior:** 
+    *   Isso elimina o erro de Hidratação (Hydration Mismatch) e o efeito de "piscada" (Flicker) na interface. O usuário recebe o HTML já com seu nome e perfil carregados, resultando em uma Performance Percebida (FCP - First Contentful Paint) muito superior ao uso de `localStorage`.
 
 ### D. Performance de Banco de Dados (PostgreSQL + Prisma)
 *   **Decisão:** Uso de índices compostos em `(userId, date)` e `(userId, type)`.

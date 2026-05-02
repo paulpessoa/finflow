@@ -10,11 +10,12 @@ import { useEffect } from 'react';
 
 const transactionSchema = z.object({
   description: z.string().min(3, 'Descrição deve ter no mínimo 3 caracteres'),
-  amount: z.number().positive('O valor deve ser maior que zero'),
-  type: z.enum(['INCOME', 'EXPENSE']),
+  amount: z.coerce.number().positive('O valor deve ser maior que zero'),
+  type: z.custom<TransactionType>(),
   date: z.string().min(1, 'Data é obrigatória'),
   categoryId: z.string().min(1, 'Selecione uma categoria'),
 });
+
 
 type TransactionFormData = {
   description: string;
@@ -32,7 +33,7 @@ interface TransactionModalProps {
 }
 
 export function TransactionModal({ isOpen, onClose, initialData }: TransactionModalProps) {
-  const { data: categories, isLoading: isLoadingCats } = useCategories();
+  const { data: categories } = useCategories();
   const createMutation = useCreateTransaction();
   const updateMutation = useUpdateTransaction();
 
