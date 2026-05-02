@@ -1,0 +1,45 @@
+version: '3.9'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: finflow_db
+    environment:
+      POSTGRES_USER: finflow
+      POSTGRES_PASSWORD: finflow123
+      POSTGRES_DB: finflow_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U finflow -d finflow_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
+    container_name: finflow_api_dev
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://finflow:finflow123@postgres:5432/finflow_db
+      PORT: 3001
+      JWT_SECRET: supersecret_dev
+      NODE_ENV: development
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./backend/src:/app/src          # hot reload do src
+      - ./backend/prisma:/app/prisma    # migrations em tempo real
+      - /app/node_modules               # preserva node_modules do container
+
+  # Frontend roda fora do Docker em dev (next dev é mais rápido)
+  # Execute: cd frontend && npm run dev
+
+volumes:
+  postgres_data:
