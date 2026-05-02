@@ -8,26 +8,24 @@ export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
   
-  const { signIn } = useAuth();
+  const { signIn, isLoggingIn } = useAuth();
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError('');
-    setIsSubmitting(true);
 
     try {
       await signIn({ email, password });
-    } catch (err: any) {
-      setError('E-mail ou senha inválidos. Tente novamente.');
-    } finally {
-      setIsSubmitting(false);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'E-mail ou senha inválidos. Tente novamente.';
+      setError(message);
     }
   }
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-zinc-50 px-4 dark:bg-zinc-950">
+      {/* ... cabecalho igual ... */}
       <div className="w-full max-w-sm space-y-8">
         <div className="text-center">
           <h1 className="text-3xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
@@ -79,10 +77,10 @@ export default function LoginPage() {
           <div>
             <button
               type="submit"
-              disabled={isSubmitting}
+              disabled={isLoggingIn}
               className="group relative flex w-full justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
             >
-              {isSubmitting ? 'Entrando...' : 'Entrar'}
+              {isLoggingIn ? 'Entrando...' : 'Entrar'}
             </button>
           </div>
         </form>

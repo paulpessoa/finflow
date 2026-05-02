@@ -2,49 +2,44 @@
 
 import { createContext, useContext, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { apiFetch } from '@/lib/api';
-
-interface User {
-  id: string;
-  email: string;
-  name: string;
-}
+import { User } from '@shared/types';
+import { useLogin } from '@/hooks/useAuthHooks';
 
 interface AuthContextData {
   user: User | null;
   isAuthenticated: boolean;
-  signIn: (credentials: { email: string; password: string }) => Promise<void>;
+  signIn: (credentials: Record<'email' | 'password', string>) => Promise<void>;
   signOut: () => void;
-  loading: boolean;
+  isLoggingIn: boolean;
 }
 
 const AuthContext = createContext<AuthContextData>({} as AuthContextData);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
-  const router = useRouter();
-
-  const isAuthenticated = !!user;
-
-  useEffect(() => {
-    // Tenta recuperar o token e o usuário do localStorage ao iniciar
+  const [user, setUser] = useState<User | null>(() => {
+    if (typeof window === 'undefined') return null;
+    
     const token = localStorage.getItem('finflow_token');
     const storedUser = localStorage.getItem('finflow_user');
 
     if (token && storedUser) {
-      setUser(JSON.parse(storedUser));
+      try {
+        return JSON.parse(storedUser);
+      } catch {
+        return null;
+      }
     }
-    
-    setLoading(false);
-  }, []);
+    return null;
+  });
 
-  async function signIn({ email, password }: any) {
+  const router = useRouter();
+  const loginMutation = useLogin();
+
+  const isAuthenticated = !!user;
+
+  async function signIn(credentials: Record<'email' | 'password', string>) {
     try {
-      const response = await apiFetch<{ token: string; user: User }>('/api/auth/login', {
-        method: 'POST',
-        body: JSON.stringify({ email, password }),
-      });
+      const response = await loginMutation.mutateAsync(credentials);
 
       localStorage.setItem('finflow_token', response.token);
       localStorage.setItem('finflow_user', JSON.stringify(response.user));
@@ -61,11 +56,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     localStorage.removeItem('finflow_token');
     localStorage.removeItem('finflow_user');
     setUser(null);
+    loginMutation.reset();
+    
+    // Força um reset total da aplicação para garantir que o cache em memória (TanStack Query) seja destruído
     router.push('/login');
+    window.location.reload();
   }
 
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated, signIn, signOut, loading }}>
+    <AuthContext.Provider value={{ 
+      user, 
+      isAuthenticated, 
+      signIn, 
+      signOut, 
+      isLoggingIn: loginMutation.isPending 
+    }}>
       {children}
     </AuthContext.Provider>
   );
