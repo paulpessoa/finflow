@@ -5,26 +5,18 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useCategories } from '@/hooks/useCategories';
 import { useCreateTransaction, useUpdateTransaction } from '@/hooks/useTransactions';
-import { Transaction, TransactionType } from '@shared/types';
+import { Transaction } from '@shared/types';
 import { useEffect } from 'react';
 
 const transactionSchema = z.object({
   description: z.string().min(3, 'Descrição deve ter no mínimo 3 caracteres'),
-  amount: z.coerce.number().positive('O valor deve ser maior que zero'),
-  type: z.custom<TransactionType>(),
+  amount: z.number().positive('O valor deve ser maior que zero'),
+  type: z.enum(['INCOME', 'EXPENSE']),
   date: z.string().min(1, 'Data é obrigatória'),
   categoryId: z.string().min(1, 'Selecione uma categoria'),
 });
 
-
-type TransactionFormData = {
-  description: string;
-  amount: number;
-  type: TransactionType;
-  date: string;
-  categoryId: string;
-};
-
+type TransactionFormData = z.infer<typeof transactionSchema>;
 
 interface TransactionModalProps {
   isOpen: boolean;

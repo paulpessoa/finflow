@@ -1,5 +1,3 @@
-import Link from "next/image";
-
 export default function Home() {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-zinc-50 dark:bg-zinc-950 px-4">
@@ -21,10 +19,13 @@ export default function Home() {
             Entrar no sistema
           </a>
           <p className="text-sm text-zinc-500">
-            Ainda não tem conta? <a href="/register" className="text-indigo-600 hover:underline">Cadastre-se</a>
+            Ainda não tem conta?{" "}
+            <a href="/register" className="text-indigo-600 hover:underline">
+              Cadastre-se
+            </a>
           </p>
         </div>
       </main>
     </div>
-  );
+  )
 }
