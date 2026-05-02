@@ -87,13 +87,9 @@ export default function TransactionsPage() {
             </thead>
             <tbody className="divide-y divide-zinc-200 dark:divide-zinc-800">
               {isLoading ? (
-                <>
-                  <TableRowSkeleton />
-                  <TableRowSkeleton />
-                  <TableRowSkeleton />
-                  <TableRowSkeleton />
-                  <TableRowSkeleton />
-                </>
+                Array.from({ length: 5 }).map((_, i) => (
+                  <TableRowSkeleton key={`skeleton-${i}`} />
+                ))
               ) : transactions.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="px-6 py-12 text-center text-zinc-500">

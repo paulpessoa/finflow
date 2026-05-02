@@ -68,6 +68,7 @@ export function AuthProvider({
       user, 
       isAuthenticated, 
       signIn, 
+      setAuthenticatedUser,
       signOut, 
       isLoggingIn: loginMutation.isPending 
     }}>
