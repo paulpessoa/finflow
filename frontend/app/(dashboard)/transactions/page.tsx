@@ -1,53 +1,12 @@
 'use client';
 
-import { useEffect, useState } from "react";
-import { apiFetch } from "@/lib/api";
-
-interface Category {
-  id: string;
-  name: string;
-  color: string;
-}
-
-interface Transaction {
-  id: string;
-  description: string;
-  amount: string;
-  type: 'INCOME' | 'EXPENSE';
-  date: string;
-  category: Category;
-}
-
-interface TransactionResponse {
-  data: Transaction[];
-  meta: {
-    total: number;
-    page: number;
-    limit: number;
-    pages: number;
-  }
-}
+import { useTransactions, useDeleteTransaction } from "@/hooks/useTransactions";
 
 export default function TransactionsPage() {
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { data: response, isLoading } = useTransactions();
+  const deleteMutation = useDeleteTransaction();
 
-  useEffect(() => {
-    async function loadTransactions() {
-      try {
-        const response = await apiFetch<TransactionResponse>('/api/transactions');
-        setTransactions(response.data); // O array real está em .data
-      } catch (error) {
-        console.error("Erro ao carregar transações:", error);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    loadTransactions();
-  }, []);
-
-  const formatCurrency = (value: string) => {
+  const formatCurrency = (value: string | number) => {
     return new Intl.NumberFormat('pt-BR', {
       style: 'currency',
       currency: 'BRL'
@@ -58,7 +17,24 @@ export default function TransactionsPage() {
     return new Date(dateString).toLocaleDateString('pt-BR');
   };
 
-  if (loading) return <div>Carregando transações...</div>;
+  const handleDelete = async (id: string) => {
+    if (confirm('Tem certeza que deseja excluir esta transação?')) {
+      try {
+        await deleteMutation.mutateAsync(id);
+        alert('Transação excluída com sucesso!');
+      } catch (error) {
+        alert('Erro ao excluir transação.');
+      }
+    }
+  };
+
+  if (isLoading) return (
+    <div className="flex items-center justify-center py-20">
+      <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-600 border-t-transparent"></div>
+    </div>
+  );
+
+  const transactions = response?.data || [];
 
   return (
     <div className="space-y-8">
@@ -82,12 +58,13 @@ export default function TransactionsPage() {
                 <th className="px-6 py-4 text-sm font-medium text-zinc-700 dark:text-zinc-300">Categoria</th>
                 <th className="px-6 py-4 text-sm font-medium text-zinc-700 dark:text-zinc-300">Tipo</th>
                 <th className="px-6 py-4 text-sm font-medium text-zinc-700 dark:text-zinc-300 text-right">Valor</th>
+                <th className="px-6 py-4 text-sm font-medium text-zinc-700 dark:text-zinc-300 text-right">Ações</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-zinc-200 dark:divide-zinc-800">
               {transactions.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-6 py-12 text-center text-zinc-500">
+                  <td colSpan={6} className="px-6 py-12 text-center text-zinc-500">
                     Nenhuma transação encontrada.
                   </td>
                 </tr>
@@ -124,6 +101,15 @@ export default function TransactionsPage() {
                       transaction.type === 'INCOME' ? 'text-green-600' : 'text-red-600'
                     }`}>
                       {transaction.type === 'INCOME' ? '+' : '-'} {formatCurrency(transaction.amount)}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-right">
+                      <button 
+                        onClick={() => handleDelete(transaction.id)}
+                        disabled={deleteMutation.isPending}
+                        className="text-red-600 hover:text-red-500 disabled:opacity-50"
+                      >
+                        {deleteMutation.isPending ? '...' : 'Excluir'}
+                      </button>
                     </td>
                   </tr>
                 ))
