@@ -36,14 +36,13 @@ model Transaction {
   notes       String?
   createdAt   DateTime        @default(now())
   updatedAt   DateTime        @updatedAt
+  userId      String
+  categoryId  String
+  category    Category        @relation(fields: [categoryId], references: [id])
+  user        User            @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  userId     String
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  categoryId String
-  category   Category @relation(fields: [categoryId], references: [id])
-
-  @@index([userId, date])      // consultas filtradas por usuário + data
-  @@index([userId, type])      // agrupamentos por tipo
+  @@index([userId, date])
+  @@index([userId, type])
 }
 
 enum TransactionType {
