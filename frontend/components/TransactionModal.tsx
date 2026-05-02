@@ -8,16 +8,22 @@ import { useCreateTransaction, useUpdateTransaction } from '@/hooks/useTransacti
 import { Transaction, TransactionType } from '@shared/types';
 import { useEffect } from 'react';
 
-// Schema de validação com Zod
 const transactionSchema = z.object({
   description: z.string().min(3, 'Descrição deve ter no mínimo 3 caracteres'),
-  amount: z.coerce.number().positive('O valor deve ser maior que zero'),
+  amount: z.number().positive('O valor deve ser maior que zero'),
   type: z.enum(['INCOME', 'EXPENSE']),
   date: z.string().min(1, 'Data é obrigatória'),
   categoryId: z.string().min(1, 'Selecione uma categoria'),
 });
 
-type TransactionFormData = z.infer<typeof transactionSchema>;
+type TransactionFormData = {
+  description: string;
+  amount: number;
+  type: TransactionType;
+  date: string;
+  categoryId: string;
+};
+
 
 interface TransactionModalProps {
   isOpen: boolean;
@@ -120,7 +126,7 @@ export function TransactionModal({ isOpen, onClose, initialData }: TransactionMo
             <div>
               <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">Valor (R$)</label>
               <input
-                {...register('amount')}
+                {...register('amount', { valueAsNumber: true })}
                 type="number"
                 step="0.01"
                 className={`mt-1 block w-full rounded-md border bg-white px-3 py-2 dark:bg-zinc-800 focus:ring-2 focus:ring-indigo-500 outline-none ${

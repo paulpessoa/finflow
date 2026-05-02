@@ -3,6 +3,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { QueryProvider } from "@/contexts/QueryProvider";
+import { cookies } from "next/headers";
+import { User } from "@shared/types";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -19,11 +21,24 @@ export const metadata: Metadata = {
   description: "Dashboard de finanças pessoais para controle de receitas e despesas.",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // Lê o cookie no Servidor
+  const cookieStore = await cookies();
+  const userCookie = cookieStore.get('finflow_user');
+  let initialUser: User | null = null;
+
+  if (userCookie) {
+    try {
+      initialUser = JSON.parse(userCookie.value);
+    } catch {
+      initialUser = null;
+    }
+  }
+
   return (
     <html
       lang="pt-BR"
@@ -31,7 +46,7 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col">
         <QueryProvider>
-          <AuthProvider>
+          <AuthProvider initialUser={initialUser}>
             {children}
           </AuthProvider>
         </QueryProvider>

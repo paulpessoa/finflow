@@ -1,8 +1,9 @@
+import Cookies from 'js-cookie';
+
 export async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
   const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
   
-  // No futuro, pegaremos o token do localStorage aqui
-  const token = typeof window !== 'undefined' ? localStorage.getItem('finflow_token') : null;
+  const token = Cookies.get('finflow_token');
 
   const res = await fetch(`${baseUrl}${path}`, {
     ...options,
