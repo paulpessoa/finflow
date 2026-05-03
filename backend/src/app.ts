@@ -4,6 +4,7 @@ import authRoutes from './routes/auth'
 import transactionRoutes from './routes/transactions'
 import categoryRoutes from './routes/categories'
 import aiRoutes from './routes/ai'
+import streamingRoutes from './routes/streaming'
 import { errorHandler } from './middleware/errorHandler'
 
 const app = express()
@@ -20,6 +21,7 @@ app.use('/api/auth',         authRoutes)
 app.use('/api/transactions', transactionRoutes)
 app.use('/api/categories',   categoryRoutes)
 app.use('/api/ai',           aiRoutes)
+app.use('/api/streaming',    streamingRoutes)
 
 // Handler global de erros (sempre por último)
 app.use(errorHandler)

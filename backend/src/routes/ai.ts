@@ -41,9 +41,9 @@ interface GroqChatCompletionResponse {
 }
 
 // Rate limit simples em memória (Para MVP)
-// Em produção, usar Redis ou tabela no banco
 const rateLimitCache = new Map<string, { count: number; date: string }>()
 
+// Rota de Insights Estruturados (JSON Síncrono)
 router.post(
   "/insights",
   requireAuth,
@@ -66,7 +66,6 @@ router.post(
           .json({ error: "Limite de análises diárias atingido (Máximo: 10)" })
       }
 
-      // Atualiza cache de rate limit
       userLimit.count += 1
       rateLimitCache.set(userId, userLimit)
 
@@ -88,7 +87,6 @@ router.post(
           .json({ error: "Transações insuficientes para análise." })
       }
 
-      // Anonimizando os dados
       let totalIncome = 0
       let totalExpense = 0
       const expensesByCategory: Record<string, number> = {}
@@ -100,8 +98,7 @@ router.post(
         } else {
           totalExpense += amount
           const catName = t.category.name
-          expensesByCategory[catName] =
-            (expensesByCategory[catName] || 0) + amount
+          expensesByCategory[catName] = (expensesByCategory[catName] || 0) + amount
         }
       })
 
@@ -136,12 +133,9 @@ O chartData deve resumir as principais despesas proporcionalmente para facilitar
 
       const userPrompt = `### USER DATA START ###\n${JSON.stringify(userDataPayload, null, 2)}\n### USER DATA END ###\nAnalise os dados e retorne o JSON estruturado.`
 
-      // 4. Invocação da LLM via fetch nativo (Groq LPU)
       const groqApiKey = process.env.GROQ_API_KEY
       if (!groqApiKey) {
-        return res
-          .status(500)
-          .json({ error: "Serviço de IA não configurado no servidor." })
+        return res.status(500).json({ error: "Serviço de IA não configurado no servidor." })
       }
 
       const response = await fetch(
@@ -153,13 +147,13 @@ O chartData deve resumir as principais despesas proporcionalmente para facilitar
             "Content-Type": "application/json"
           },
           body: JSON.stringify({
-            model: "llama-3.3-70b-versatile", // Modelo veloz e atualizado
+            model: "llama-3.3-70b-versatile",
             messages: [
               { role: "system", content: systemPrompt },
               { role: "user", content: userPrompt }
             ],
             response_format: { type: "json_object" },
-            temperature: 0.2 // Baixa temperatura para respostas analíticas e JSON estável
+            temperature: 0.2
           })
         }
       )
@@ -167,44 +161,32 @@ O chartData deve resumir as principais despesas proporcionalmente para facilitar
       if (!response.ok) {
         const errBody = await response.text()
         console.error("Erro Groq API:", response.status, errBody)
-        return res
-          .status(503)
-          .json({
-            error:
-              "O serviço de análise de IA está temporariamente indisponível."
-          })
+        return res.status(503).json({ error: "O serviço de análise de IA está temporariamente indisponível." })
       }
 
       const data = (await response.json()) as GroqChatCompletionResponse;
       const content = data.choices[0]?.message?.content
 
       if (!content) {
-        return res
-          .status(500)
-          .json({ error: "A IA retornou uma resposta vazia." })
+        return res.status(500).json({ error: "A IA retornou uma resposta vazia." })
       }
 
-      // 5. Parse e Validação (Zod)
+      // Parse e Validação (Zod)
       let parsedContent: unknown
       try {
         parsedContent = JSON.parse(content)
       } catch (e) {
         console.error("Erro de parse JSON da IA:", content)
-        return res
-          .status(500)
-          .json({ error: "A IA retornou um formato inválido." })
+        return res.status(500).json({ error: "A IA retornou um formato inválido." })
       }
 
       const validationResult = AIResponseSchema.safeParse(parsedContent)
 
       if (!validationResult.success) {
         console.error("Falha de schema Zod:", validationResult.error.format())
-        return res
-          .status(500)
-          .json({ error: "A análise não pôde ser estruturada corretamente." })
+        return res.status(500).json({ error: "A análise não pôde ser estruturada corretamente." })
       }
 
-      // Retorna payload tipado de forma segura e imediata
       return res.json(validationResult.data)
     } catch (error) {
       next(error)
