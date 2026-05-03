@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import Link from 'next/link';
+import { ApiStatusBadge } from '@/components/ApiStatusBadge';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -25,10 +26,10 @@ export default function LoginPage() {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-zinc-50 px-4 dark:bg-zinc-950">
-      {/* ... cabecalho igual ... */}
       <div className="w-full max-w-sm space-y-8">
-        <div className="text-center">
-          <h1 className="text-3xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
+        <div className="text-center flex flex-col items-center">
+          <ApiStatusBadge />
+          <h1 className="mt-6 text-3xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
             FinFlow
           </h1>
           <p className="mt-2 text-zinc-600 dark:text-zinc-400">
@@ -42,7 +43,6 @@ export default function LoginPage() {
               {error}
             </div>
           )}
-          {/* ... resto igual ... */}
 
           <div className="space-y-4 rounded-md shadow-sm">
             <div>
