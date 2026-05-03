@@ -3,6 +3,7 @@ import cors from 'cors'
 import authRoutes from './routes/auth'
 import transactionRoutes from './routes/transactions'
 import categoryRoutes from './routes/categories'
+import aiRoutes from './routes/ai'
 import { errorHandler } from './middleware/errorHandler'
 
 const app = express()
@@ -18,6 +19,7 @@ app.get('/health', (_, res) => res.json({ status: 'ok', ts: new Date() }))
 app.use('/api/auth',         authRoutes)
 app.use('/api/transactions', transactionRoutes)
 app.use('/api/categories',   categoryRoutes)
+app.use('/api/ai',           aiRoutes)
 
 // Handler global de erros (sempre por último)
 app.use(errorHandler)
