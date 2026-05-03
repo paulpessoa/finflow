@@ -74,6 +74,7 @@ export default function RegisterPage() {
               </label>
               <input
                 {...register('name')}
+                autoComplete="name"
                 className={`mt-1 block w-full rounded-md border bg-white px-3 py-2 text-zinc-900 focus:ring-2 focus:ring-indigo-500 outline-none sm:text-sm dark:bg-zinc-900 dark:text-zinc-50 ${
                   errors.name ? 'border-red-500' : 'border-zinc-300 dark:border-zinc-800'
                 }`}
@@ -89,6 +90,7 @@ export default function RegisterPage() {
               <input
                 {...register('email')}
                 type="email"
+                autoComplete="email"
                 className={`mt-1 block w-full rounded-md border bg-white px-3 py-2 text-zinc-900 focus:ring-2 focus:ring-indigo-500 outline-none sm:text-sm dark:bg-zinc-900 dark:text-zinc-50 ${
                   errors.email ? 'border-red-500' : 'border-zinc-300 dark:border-zinc-800'
                 }`}
@@ -104,6 +106,7 @@ export default function RegisterPage() {
               <input
                 {...register('password')}
                 type="password"
+                autoComplete="new-password"
                 className={`mt-1 block w-full rounded-md border bg-white px-3 py-2 text-zinc-900 focus:ring-2 focus:ring-indigo-500 outline-none sm:text-sm dark:bg-zinc-900 dark:text-zinc-50 ${
                   errors.password ? 'border-red-500' : 'border-zinc-300 dark:border-zinc-800'
                 }`}

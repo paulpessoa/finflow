@@ -18,6 +18,7 @@ import {
 } from 'recharts';
 
 import { CardSkeleton, Skeleton } from "@/components/Skeleton";
+import { AiAdvisorPanel } from "@/components/AiAdvisorPanel";
 
 export default function DashboardPage() {
   const queryClient = useQueryClient();
@@ -76,7 +77,7 @@ export default function DashboardPage() {
         <button 
           onClick={handleRefresh}
           disabled={isFetching}
-          className="inline-flex items-center gap-2 rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-50 disabled:opacity-50 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800 transition-all"
+          className="inline-flex items-center gap-2 rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-50 disabled:opacity-50 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800 transition-all cursor-pointer disabled:cursor-not-allowed"
         >
           {isFetching ? 'Atualizando...' : 'Atualizar Dados'}
         </button>
@@ -101,12 +102,15 @@ export default function DashboardPage() {
         </div>
       </div>
 
+      {/* Painel da IA */}
+      <AiAdvisorPanel />
+
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Gráfico de Barras - Comparativo */}
         <div className="rounded-xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900">
           <h3 className="text-lg font-medium mb-6">Comparativo Mensal</h3>
           <div className="h-64 w-full">
-            <ResponsiveContainer width="100%" height="100%">
+            <ResponsiveContainer width="100%" height={256}>
               <BarChart data={barData}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e7eb" />
                 <XAxis dataKey="name" axisLine={false} tickLine={false} />
@@ -130,7 +134,7 @@ export default function DashboardPage() {
         <div className="rounded-xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900">
           <h3 className="text-lg font-medium mb-6">Distribuição de Gastos</h3>
           <div className="h-64 w-full">
-            <ResponsiveContainer width="100%" height="100%">
+            <ResponsiveContainer width="100%" height={256}>
               <PieChart>
                 <Pie
                   data={pieData}
