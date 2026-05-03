@@ -16,7 +16,7 @@ export async function apiFetch<T>(path: string, options?: RequestInit): Promise<
 
   if (!res.ok) {
     const errorData = await res.json().catch(() => ({ message: 'Erro desconhecido' }));
-    throw new Error(errorData.message || `Erro na requisição: ${res.status}`);
+    throw new Error(errorData.error || errorData.message || `Erro na requisição: ${res.status}`);
   }
 
   return res.json();
