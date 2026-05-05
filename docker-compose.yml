@@ -42,10 +42,10 @@ services:
       - backend
     environment:
       API_URL: http://backend:3001/api
-      HTMX_PORT: 4000
+      PORT: 3000
       NODE_ENV: production
     ports:
-      - "4000:4000"
+      - "4000:3000"
 
 volumes:
   postgres_data:
