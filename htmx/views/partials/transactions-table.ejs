@@ -1,0 +1,64 @@
+<div class="table-container glass">
+    <table class="fin-table">
+        <thead>
+            <tr>
+                <th>Data</th>
+                <th>Descrição</th>
+                <th>Categoria</th>
+                <th>Valor</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% if (transactions && transactions.length > 0) { %>
+                <% transactions.forEach(t => { %>
+                    <tr id="tr-<%= t.id %>" class="<%= t.type.toLowerCase() %>">
+                        <td><%= new Date(t.date).toLocaleDateString('pt-BR') %></td>
+                        <td>
+                            <div class="desc-cell">
+                                <strong><%= t.description %></strong>
+                                <% if (t.notes) { %><small><%= t.notes %></small><% } %>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge" style="background: <%= t.category?.color || '#ccc' %>22; color: <%= t.category?.color || '#ccc' %>">
+                                <%= t.category?.icon || '📦' %> <%= t.category?.name || 'Geral' %>
+                            </span>
+                        </td>
+                        <td class="amount-cell">
+                            <%= t.type === 'EXPENSE' ? '-' : '+' %> 
+                            <%= t.amount.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) %>
+                        </td>
+                        <td class="actions-cell">
+                            <button 
+                                class="btn-icon edit" 
+                                hx-get="/transactions/<%= t.id %>/edit" 
+                                hx-target="body" 
+                                hx-swap="beforeend"
+                                title="Editar"
+                            >
+                                ✏️
+                            </button>
+                            <button 
+                                class="btn-icon delete" 
+                                hx-delete="/transactions/<%= t.id %>" 
+                                hx-target="#tr-<%= t.id %>" 
+                                hx-swap="outerHTML" 
+                                hx-confirm="Tem certeza que deseja excluir?"
+                                title="Excluir"
+                            >
+                                🗑️
+                            </button>
+                        </td>
+                    </tr>
+                <% }) %>
+            <% } else { %>
+                <tr>
+                    <td colspan="5" style="text-align: center; padding: 3rem; color: var(--text-secondary);">
+                        Nenhuma transação encontrada. Clique em "Nova Transação" para começar.
+                    </td>
+                </tr>
+            <% } %>
+        </tbody>
+    </table>
+</div>
