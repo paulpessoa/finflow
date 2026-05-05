@@ -32,10 +32,18 @@ const checkAuth = (req, res, next) => {
 // Middleware para passar dados do usuário para o Layout
 app.use((req, res, next) => {
     res.locals.user = null;
-    if (req.cookies.token && req.cookies.user) {
+    const token = req.cookies.token;
+    const userCookie = req.cookies.user;
+
+    if (token && userCookie) {
         try {
-            res.locals.user = typeof req.cookies.user === 'string' ? JSON.parse(req.cookies.user) : req.cookies.user;
-        } catch (e) {}
+            const parsedUser = typeof userCookie === 'string' ? JSON.parse(userCookie) : userCookie;
+            if (parsedUser && (parsedUser.name || parsedUser.email)) {
+                res.locals.user = parsedUser;
+            }
+        } catch (e) {
+            console.error("Erro ao ler cookie de usuário:", e);
+        }
     }
     next();
 });
