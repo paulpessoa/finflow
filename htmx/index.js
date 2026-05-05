@@ -29,25 +29,24 @@ const checkAuth = (req, res, next) => {
     next();
 };
 
+// Middleware para passar dados do usuário para o Layout
+app.use((req, res, next) => {
+    res.locals.user = null;
+    if (req.cookies.token && req.cookies.user) {
+        try {
+            res.locals.user = typeof req.cookies.user === 'string' ? JSON.parse(req.cookies.user) : req.cookies.user;
+        } catch (e) {}
+    }
+    next();
+});
+
 // Rotas de View
 app.get('/', checkAuth, (req, res) => {
-    let userData = { name: 'Usuário' };
-    try {
-        if (req.cookies.user) {
-            userData = typeof req.cookies.user === 'string' ? JSON.parse(req.cookies.user) : req.cookies.user;
-        }
-    } catch (e) {}
-    res.render('dashboard', { user: userData });
+    res.render('dashboard');
 });
 
 app.get('/transactions', checkAuth, (req, res) => {
-    let userData = { name: 'Usuário' };
-    try {
-        if (req.cookies.user) {
-            userData = typeof req.cookies.user === 'string' ? JSON.parse(req.cookies.user) : req.cookies.user;
-        }
-    } catch (e) {}
-    res.render('transactions', { user: userData });
+    res.render('transactions');
 });
 
 app.get('/login', (req, res) => {
@@ -62,6 +61,12 @@ app.get('/register', (req, res) => {
 
 
 // Ações HTMX - Auth
+app.get('/auth/logout', (req, res) => {
+    res.clearCookie('token');
+    res.clearCookie('user');
+    res.redirect('/login');
+});
+
 app.post('/auth/login', async (req, res) => {
     const { email, password } = req.body;
     try {
