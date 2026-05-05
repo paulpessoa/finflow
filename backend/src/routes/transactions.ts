@@ -129,7 +129,21 @@ router.post("/", async (req: AuthRequest, res, next) => {
   }
 })
 
-// PUT /api/transactions/:id
+// GET /api/transactions/:id — buscar transação única (DEVE vir após rotas estáticas como /summary)
+router.get("/:id", async (req: AuthRequest, res, next) => {
+  try {
+    const transaction = await prisma.transaction.findFirst({
+      where: { id: req.params.id, userId: req.userId! },
+      include: { category: true }
+    })
+    if (!transaction)
+      return res.status(404).json({ error: "Transação não encontrada" })
+    return res.json(transaction)
+  } catch (err) {
+    next(err)
+  }
+})
+
 router.put("/:id", async (req: AuthRequest, res, next) => {
   try {
     const exists = await prisma.transaction.findFirst({
