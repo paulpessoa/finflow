@@ -1,0 +1,38 @@
+<div class="auth-page">
+    <div class="glass auth-card">
+        <div style="text-align: center; margin-bottom: 2.5rem;">
+            <h2 style="margin: 0 0 0.5rem 0; font-size: 1.75rem;">Criar Conta</h2>
+            <p style="color: #94a3b8; margin: 0; font-size: 0.9rem;">Comece a gerenciar suas finanças hoje</p>
+        </div>
+        
+        <div id="auth-message"></div>
+
+        <form hx-post="/auth/register" hx-target="#auth-message" hx-swap="innerHTML">
+            <div class="form-group">
+                <label for="name">Nome Completo</label>
+                <input type="text" name="name" id="name" class="input-field" placeholder="Seu nome" required minlength="2">
+                <span class="error-hint">O nome deve ter pelo menos 2 caracteres.</span>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" name="email" id="email" class="input-field" placeholder="seu@email.com" required>
+                <span class="error-hint">Por favor, insira um e-mail válido.</span>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Senha</label>
+                <input type="password" name="password" id="password" class="input-field" placeholder="••••••••" required minlength="4">
+                <span class="error-hint">A senha deve ter pelo menos 4 caracteres.</span>
+            </div>
+
+            <button type="submit" class="btn-primary" style="width: 100%; margin-top: 1rem; padding: 0.85rem;">
+                Criar Minha Conta
+            </button>
+        </form>
+
+        <p style="text-align: center; margin-top: 2rem; font-size: 0.875rem; color: #94a3b8;">
+            Já tem uma conta? <a href="/login" style="color: #6366f1; text-decoration: none; font-weight: 600;">Faça login</a>
+        </p>
+    </div>
+</div>
