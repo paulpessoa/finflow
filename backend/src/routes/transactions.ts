@@ -59,55 +59,51 @@ router.get("/", async (req: AuthRequest, res, next) => {
 // GET /api/transactions/summary — totais por categoria
 router.get("/summary", async (req: AuthRequest, res, next) => {
   try {
+    const userId = req.userId!
     const { from, to } = req.query
-    const dateFilter =
-      from || to
-        ? {
-            date: {
-              ...(from ? { gte: new Date(from as string) } : {}),
-              ...(to ? { lte: new Date(to as string) } : {})
-            }
-          }
-        : {}
 
-    const [income, expense, byCategory] = await Promise.all([
-      prisma.transaction.aggregate({
-        where: { userId: req.userId, type: "INCOME", ...dateFilter },
-        _sum: { amount: true }
-      }),
-      prisma.transaction.aggregate({
-        where: { userId: req.userId, type: "EXPENSE", ...dateFilter },
-        _sum: { amount: true }
-      }),
-      prisma.transaction.groupBy({
-        by: ["categoryId"],
-        where: { userId: req.userId, type: "EXPENSE", ...dateFilter },
-        _sum: { amount: true },
-        orderBy: { _sum: { amount: "desc" } }
-      })
-    ])
+    if (!userId) {
+      return res.status(401).json({ error: "Usuário não autenticado" })
+    }
 
-    const categories = await prisma.category.findMany({
-      where: { id: { in: byCategory.map((b) => b.categoryId) } }
-    })
-    const categorySummary = byCategory.map((b) => {
+    const fromDate = from ? new Date(from as string).toISOString() : '1970-01-01T00:00:00Z'
+    const toDate = to ? new Date(to as string).toISOString() : '9999-12-31T23:59:59Z'
+
+    const summaryRaw = await prisma.$queryRaw<any[]>`
+      SELECT
+        (SELECT COALESCE(SUM(amount), 0) FROM "Transaction"
+          WHERE "userId" = ${userId} AND "type"::text = 'INCOME'
+            AND "date" >= ${fromDate}::timestamptz AND "date" <= ${toDate}::timestamptz) as income,
+        (SELECT COALESCE(SUM(amount), 0) FROM "Transaction"
+          WHERE "userId" = ${userId} AND "type"::text = 'EXPENSE'
+            AND "date" >= ${fromDate}::timestamptz AND "date" <= ${toDate}::timestamptz) as expense
+    `
+    const income = Number(summaryRaw[0].income)
+    const expense = Number(summaryRaw[0].expense)
+
+    const byCategoryRaw = await prisma.$queryRaw<any[]>`
+      SELECT "categoryId", COALESCE(SUM(amount), 0) as total
+      FROM "Transaction"
+      WHERE "userId" = ${userId} AND "type"::text = 'EXPENSE'
+        AND "date" >= ${fromDate}::timestamptz AND "date" <= ${toDate}::timestamptz
+      GROUP BY "categoryId"
+      ORDER BY total DESC
+    `
+    const categoryIds = byCategoryRaw.map((b: any) => b.categoryId)
+    const categories = await prisma.category.findMany({ where: { id: { in: categoryIds } } })
+    const byCategory = byCategoryRaw.map((b: any) => {
       const cat = categories.find((c) => c.id === b.categoryId)
       return {
-        id: cat?.id,
-        name: cat?.name,
-        color: cat?.color,
-        icon: cat?.icon,
-        total: Number(b._sum.amount ?? 0)
+        id: b.categoryId,
+        name: cat?.name ?? 'Outros',
+        color: cat?.color ?? '#cbd5e1',
+        icon: cat?.icon ?? '📁',
+        total: Number(b.total),
       }
     })
 
-    return res.json({
-      income: Number(income._sum.amount ?? 0),
-      expense: Number(expense._sum.amount ?? 0),
-      balance:
-        Number(income._sum.amount ?? 0) - Number(expense._sum.amount ?? 0),
-      byCategory: categorySummary
-    })
+    return res.json({ income, expense, balance: income - expense, byCategory })
+
   } catch (err) {
     next(err)
   }
