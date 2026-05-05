@@ -100,13 +100,13 @@ router.get("/summary", async (req: AuthRequest, res, next) => {
         name: cat?.name,
         color: cat?.color,
         icon: cat?.icon,
-        total: b._sum.amount
+        total: Number(b._sum.amount ?? 0)
       }
     })
 
     return res.json({
-      income: income._sum.amount ?? 0,
-      expense: expense._sum.amount ?? 0,
+      income: Number(income._sum.amount ?? 0),
+      expense: Number(expense._sum.amount ?? 0),
       balance:
         Number(income._sum.amount ?? 0) - Number(expense._sum.amount ?? 0),
       byCategory: categorySummary
