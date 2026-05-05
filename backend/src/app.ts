@@ -1,11 +1,17 @@
 import express from 'express'
 import cors from 'cors'
+import { Prisma } from '@prisma/client'
 import authRoutes from './routes/auth'
 import transactionRoutes from './routes/transactions'
 import categoryRoutes from './routes/categories'
 import aiRoutes from './routes/ai'
 import streamingRoutes from './routes/streaming'
 import { errorHandler } from './middleware/errorHandler'
+
+// Fix: Prisma Decimal serialization
+;(Prisma.Decimal.prototype as any).toJSON = function () {
+  return this.toNumber()
+}
 
 const app = express()
 
