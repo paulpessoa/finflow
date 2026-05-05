@@ -1,0 +1,210 @@
+<div class="charts-grid">
+    <!-- Gráfico de Distribuição -->
+    <div class="chart-card glass">
+        <div class="chart-header">
+            <h4>Distribuição</h4>
+            <small>% Entradas vs Saídas</small>
+        </div>
+        <div class="chart-body">
+            <canvas id="doughnutChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Gráfico de Volume (Barras) -->
+    <div class="chart-card glass">
+        <div class="chart-header">
+            <h4>Volume Total</h4>
+            <small>Somatório em R$</small>
+        </div>
+        <div class="chart-body">
+            <canvas id="barChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Detalhamento por Categoria (Lista Estilo Next.js) -->
+    <div class="chart-card glass">
+        <div class="chart-header">
+            <h4>Por Categoria</h4>
+            <small>Detalhamento de gastos</small>
+        </div>
+        <div class="chart-body" id="category-list" style="height: auto; overflow-y: visible;">
+            <div class="skeleton">Carregando categorias...</div>
+        </div>
+    </div>
+
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    (async function initCharts() {
+        try {
+            const response = await fetch('/dashboard/chart-data');
+            const data = await response.json();
+
+            // Configuração do Gráfico de Rosca
+            const ctxDoughnut = document.getElementById('doughnutChart').getContext('2d');
+            if (window.dChart) window.dChart.destroy();
+            window.dChart = new Chart(ctxDoughnut, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Entradas', 'Saídas'],
+                    datasets: [{
+                        data: [data.income, data.expense],
+                        backgroundColor: ['#10b981', '#ef4444'],
+                        borderColor: 'transparent',
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { color: '#94a3b8' } }
+                    },
+                    cutout: '75%'
+                }
+            });
+
+            // Configuração do Gráfico de Barras
+            const ctxBar = document.getElementById('barChart').getContext('2d');
+            if (window.bChart) window.bChart.destroy();
+            window.bChart = new Chart(ctxBar, {
+                type: 'bar',
+                data: {
+                    labels: ['Ganhos', 'Gastos'],
+                    datasets: [{
+                        label: 'Total R$',
+                        data: [data.income, data.expense],
+                        backgroundColor: ['#10b98133', '#ef444433'],
+                        borderColor: ['#10b981', '#ef4444'],
+                        borderWidth: 2,
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { 
+                            beginAtZero: true, 
+                            grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                            ticks: { color: '#94a3b8' }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: '#94a3b8' }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+
+            // Renderizar Lista de Categorias (Estilo Next.js)
+            const listContainer = document.getElementById('category-list');
+            if (data.categoryList && data.categoryList.length > 0) {
+                listContainer.innerHTML = data.categoryList.map(cat => {
+                    const percentage = Math.min((cat.total / (data.expense || 1)) * 100, 100).toFixed(1);
+                    return `
+                        <div class="category-item">
+                            <div class="cat-info">
+                                <span class="cat-icon">${cat.icon || '📁'}</span>
+                                <div class="cat-details">
+                                    <span class="cat-name">${cat.name}</span>
+                                    <div class="cat-progress-bg">
+                                        <div class="cat-progress-fill" style="width: ${percentage}%; background-color: ${cat.color || '#6366f1'}"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <span class="cat-amount">R$ ${cat.total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
+                        </div>
+                    `;
+                }).join('');
+            } else {
+                listContainer.innerHTML = '<p style="text-align: center; color: #94a3b8; padding: 2rem;">Nenhum gasto registrado.</p>';
+            }
+
+        } catch (e) {
+            console.error('Erro ao carregar gráficos:', e);
+        }
+    })();
+</script>
+
+<style>
+    .charts-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 1.5rem;
+        width: 100%;
+    }
+    .chart-card {
+        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+    }
+    .chart-header {
+        margin-bottom: 1.5rem;
+    }
+    .chart-header h4 {
+        margin: 0;
+        font-size: 1.1rem;
+    }
+    .chart-header small {
+        color: #94a3b8;
+    }
+    .chart-body {
+        position: relative;
+        height: 250px;
+        width: 100%;
+    }
+
+    /* Estilos da Lista de Categorias */
+    .category-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.25rem;
+    }
+    .cat-info {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        flex: 1;
+    }
+    .cat-icon {
+        font-size: 1.5rem;
+        width: 32px;
+        text-align: center;
+    }
+    .cat-details {
+        flex: 1;
+        margin-right: 1.5rem;
+    }
+    .cat-name {
+        display: block;
+        font-size: 0.875rem;
+        font-weight: 500;
+        margin-bottom: 0.35rem;
+        color: #f1f5f9;
+    }
+    .cat-progress-bg {
+        height: 6px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 10px;
+        overflow: hidden;
+    }
+    .cat-progress-fill {
+        height: 100%;
+        border-radius: 10px;
+        transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .cat-amount {
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: #f8fafc;
+        white-space: nowrap;
+    }
+</style>
+
