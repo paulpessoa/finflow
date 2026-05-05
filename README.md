@@ -74,8 +74,11 @@ O sistema estará disponível em: `http://localhost:3000`
 
 ## 🌐 Deploy (Produção)
 
-### URL do Backend (Render)
+### URL do Backend Node.js (Render)
 A API está hospedada em: [https://finflow-l05o.onrender.com](https://finflow-l05o.onrender.com)
+
+### URL do Backend Golang (Render)
+A API está hospedada em: [https://finflow-1-a2aj.onrender.com](https://finflow-1-a2aj.onrender.com)
 
 ### URL do Frontend (Vercel)
 A interface está disponível em: [https://finflow-orpin.vercel.app](https://finflow-orpin.vercel.app)
@@ -90,8 +93,8 @@ A interface está disponível em: [https://finflow-orpin.vercel.app](https://fin
 - `PORT`: 3001
 
 ### Na Vercel (Frontend):
-- `NEXT_PUBLIC_NODE_API_URL`: Deve apontar para a URL do backend Node: `https://finflow-node-api.onrender.com`
-- `NEXT_PUBLIC_GO_API_URL`: Deve apontar para a URL do backend Go: `https://finflow-go-api.onrender.com`
-- `NEXT_PUBLIC_API_URL`: Fallback (pode ser a mesma do Node).
+- `NEXT_PUBLIC_NODE_API_URL`: `https://finflow-l05o.onrender.com`
+- `NEXT_PUBLIC_GO_API_URL`: `https://finflow-1-a2aj.onrender.com`
+- `NEXT_PUBLIC_API_URL`: `https://finflow-l05o.onrender.com` (Fallback)
 
 > **Nota Importante:** **NUNCA** coloque `http://localhost:3001` na configuração de produção do Render ou Vercel. O `localhost` serve apenas para o seu computador local. No servidor, o frontend precisa do endereço público do backend para conseguir "conversar" com ele.
