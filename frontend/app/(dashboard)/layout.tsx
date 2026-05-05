@@ -4,6 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useRouter, usePathname } from "next/navigation";
 import { useEffect } from "react";
 import Link from "next/link";
+import { ApiSelector } from "@/components/ApiSelector";
 
 export default function DashboardLayout({
   children
@@ -68,6 +69,8 @@ export default function DashboardLayout({
             >
               Sair
             </button>
+            <div className="h-6 w-px bg-zinc-200 dark:bg-zinc-800 mx-2" />
+            <ApiSelector />
           </div>
         </div>
       </nav>

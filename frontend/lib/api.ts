@@ -1,7 +1,8 @@
 import Cookies from 'js-cookie';
+import { getApiUrl } from './apiConfig';
 
 export async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
-  const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+  const baseUrl = getApiUrl();
   
   const token = Cookies.get('finflow_token');
 
