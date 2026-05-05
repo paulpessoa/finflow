@@ -85,7 +85,10 @@ router.get("/summary", async (req: AuthRequest, res, next) => {
         _sum: { amount: true },
         orderBy: { _sum: { amount: "desc" } }
       })
-    ])
+    ]).catch(err => {
+      console.error("Error in summary aggregation:", err)
+      throw err
+    })
 
     const categories = await prisma.category.findMany({
       where: { id: { in: byCategory.map((b) => b.categoryId) } }
