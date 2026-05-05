@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Cookies from 'js-cookie';
+import { getApiUrl } from '@/lib/api';
 
 export function AiQuickAsk() {
   const [question, setQuestion] = useState('');
@@ -16,7 +17,7 @@ export function AiQuickAsk() {
     setIsStreaming(true);
 
     try {
-      const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+      const baseUrl = await getApiUrl();
       const token = Cookies.get('finflow_token');
 
       const response = await fetch(`${baseUrl}/api/streaming/ask`, {

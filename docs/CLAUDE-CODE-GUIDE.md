@@ -118,7 +118,7 @@ npx @anthropic-ai/claude-code --add-mcp-server postgres
 1. Criar conta em https://vercel.com
 2. New Project → importar repositório → Root Directory: `frontend`
 3. Framework: Next.js (detectado automaticamente)
-4. Environment Variables: `NEXT_PUBLIC_API_URL=https://finflow-api.onrender.com`
+4. Environment Variables: `NEXT_PUBLIC_NODE_API_URL`, `NEXT_PUBLIC_GO_API_URL`, `NEXT_PUBLIC_API_URL` (fallback)
 5. Deploy
 
 ### Resumo de custos

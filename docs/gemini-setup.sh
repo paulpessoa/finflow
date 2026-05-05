@@ -136,12 +136,19 @@ components/
 
 ## Fetch da API — sempre usar este wrapper
 ```typescript
-// lib/api.ts
-const BASE = process.env.NEXT_PUBLIC_API_URL  // http://localhost:3001
+# lib/api.ts
+export async function getApiUrl(): Promise<string> {
+  const provider = await getApiProvider();
+  if (provider === 'go') {
+    return process.env.NEXT_PUBLIC_GO_API_URL || "http://localhost:3002";
+  }
+  return process.env.NEXT_PUBLIC_NODE_API_URL || process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
+}
 
 async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
-  const token = localStorage.getItem('finflow_token')
-  const res = await fetch(`${BASE}${path}`, {
+  const baseUrl = await getApiUrl()
+  const token = Cookies.get('finflow_token')
+  const res = await fetch(`${baseUrl}${path}`, {
     ...options,
     headers: {
       'Content-Type': 'application/json',
@@ -168,6 +175,8 @@ async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
 | GET    | /api/categories              | ✅   | lista de categorias        |
 
 ## Env vars
+NEXT_PUBLIC_NODE_API_URL=http://localhost:3001
+NEXT_PUBLIC_GO_API_URL=http://localhost:3002
 NEXT_PUBLIC_API_URL=http://localhost:3001
 EOF
 

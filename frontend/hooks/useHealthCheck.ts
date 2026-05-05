@@ -1,10 +1,11 @@
 import { useQuery } from '@tanstack/react-query';
+import { getApiUrl } from '@/lib/api';
 
 export function useHealthCheck() {
   return useQuery({
     queryKey: ['health-check'],
     queryFn: async () => {
-      const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+      const baseUrl = await getApiUrl();
       const res = await fetch(`${baseUrl}/health`);
       if (!res.ok) throw new Error('Offline');
       return res.json();

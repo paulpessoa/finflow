@@ -43,6 +43,8 @@ PORT=3001
 **Frontend (`frontend/.env.local`):**
 ```env
 NEXT_PUBLIC_API_URL=http://localhost:3001
+NEXT_PUBLIC_NODE_API_URL=http://localhost:3001
+NEXT_PUBLIC_GO_API_URL=http://localhost:3002
 ```
 
 ### Passo 2: Subir o Banco de Dados
@@ -88,6 +90,8 @@ A interface está disponível em: [https://finflow-orpin.vercel.app](https://fin
 - `PORT`: 3001
 
 ### Na Vercel (Frontend):
-- `NEXT_PUBLIC_API_URL`: Deve apontar para a URL do backend no Render: `https://finflow-l05o.onrender.com`
+- `NEXT_PUBLIC_NODE_API_URL`: Deve apontar para a URL do backend Node: `https://finflow-node-api.onrender.com`
+- `NEXT_PUBLIC_GO_API_URL`: Deve apontar para a URL do backend Go: `https://finflow-go-api.onrender.com`
+- `NEXT_PUBLIC_API_URL`: Fallback (pode ser a mesma do Node).
 
 > **Nota Importante:** **NUNCA** coloque `http://localhost:3001` na configuração de produção do Render ou Vercel. O `localhost` serve apenas para o seu computador local. No servidor, o frontend precisa do endereço público do backend para conseguir "conversar" com ele.

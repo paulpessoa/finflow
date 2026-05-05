@@ -24,6 +24,8 @@ JWT_SECRET=supersecret_troque_em_producao
 NODE_ENV=development
 
 # Frontend
+NEXT_PUBLIC_NODE_API_URL=http://localhost:3001
+NEXT_PUBLIC_GO_API_URL=http://localhost:3002
 NEXT_PUBLIC_API_URL=http://localhost:3001
 EOF
 
@@ -85,6 +87,8 @@ services:
       - backend
     environment:
       NEXT_PUBLIC_API_URL: http://localhost:3001
+      NEXT_PUBLIC_NODE_API_URL: http://localhost:3001
+      NEXT_PUBLIC_GO_API_URL: http://localhost:3002
     ports:
       - "3000:3000"
 
@@ -865,9 +869,18 @@ components/
 ## Fetch da API
 ```typescript
 // lib/api.ts — sempre usar este wrapper
+export async function getApiUrl(): Promise<string> {
+  const provider = await getApiProvider();
+  if (provider === 'go') {
+    return process.env.NEXT_PUBLIC_GO_API_URL || "http://localhost:3002";
+  }
+  return process.env.NEXT_PUBLIC_NODE_API_URL || process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
+}
+
 async function apiFetch(path: string, options?: RequestInit) {
+  const baseUrl = await getApiUrl();
   const token = localStorage.getItem('token')
-  return fetch(`${process.env.NEXT_PUBLIC_API_URL}${path}`, {
+  return fetch(`${baseUrl}${path}`, {
     ...options,
     headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}`, ...options?.headers },
   })
@@ -875,6 +888,8 @@ async function apiFetch(path: string, options?: RequestInit) {
 ```
 
 ## Variáveis de ambiente
+- NEXT_PUBLIC_NODE_API_URL=http://localhost:3001
+- NEXT_PUBLIC_GO_API_URL=http://localhost:3002
 - NEXT_PUBLIC_API_URL=http://localhost:3001
 EOF
 

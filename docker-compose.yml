@@ -49,6 +49,8 @@ services:
       - backend
     environment:
       NEXT_PUBLIC_API_URL: http://localhost:3001
+      NEXT_PUBLIC_NODE_API_URL: http://localhost:3001
+      NEXT_PUBLIC_GO_API_URL: http://localhost:3002
     ports:
       - "3000:3000"
 

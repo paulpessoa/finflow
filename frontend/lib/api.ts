@@ -37,11 +37,12 @@ export function setApiProvider(provider: ApiProvider) {
  * Retorna a URL base dinamicamente com base no provedor selecionado.
  */
 export async function getApiUrl(): Promise<string> {
-  const provider = await getApiProvider()
-  if (provider === "go") {
-    return process.env.NEXT_PUBLIC_GO_API_URL || "http://localhost:3001"
+  const provider = await getApiProvider();
+  if (provider === 'go') {
+    return process.env.NEXT_PUBLIC_GO_API_URL || "http://localhost:3002";
   }
-  return process.env.NEXT_PUBLIC_NODE_API_URL || "http://localhost:3001"
+  // Fallback para a variável antiga caso o usuário não tenha migrado o .env
+  return process.env.NEXT_PUBLIC_NODE_API_URL || process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
 }
 
 /**
