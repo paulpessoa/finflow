@@ -7,7 +7,6 @@ import { z } from 'zod';
 import { useRegister } from '@/hooks/useAuthHooks';
 import { useAuth } from '@/contexts/AuthContext';
 import Link from 'next/link';
-import Cookies from 'js-cookie';
 import { useRouter } from 'next/navigation';
 
 const registerSchema = z.object({

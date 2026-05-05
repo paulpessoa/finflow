@@ -1,42 +1,43 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
-import { AuthProvider } from "@/contexts/AuthContext";
-import { QueryProvider } from "@/contexts/QueryProvider";
-import { cookies } from "next/headers";
-import { User } from "@shared/types";
-import { SocialLinks } from "@/components/SocialLinks";
+import type { Metadata } from "next"
+import { Geist, Geist_Mono } from "next/font/google"
+import "./globals.css"
+import { AuthProvider } from "@/contexts/AuthContext"
+import { QueryProvider } from "@/contexts/QueryProvider"
+import { cookies } from "next/headers"
+import { User } from "@shared/types"
+import { SocialLinks } from "@/components/SocialLinks"
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
+  subsets: ["latin"]
+})
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+  subsets: ["latin"]
+})
 
 export const metadata: Metadata = {
   title: "FinFlow - Controle sua vida financeira",
-  description: "Dashboard de finanças pessoais para controle de receitas e despesas.",
-};
+  description:
+    "Dashboard de finanças pessoais para controle de receitas e despesas."
+}
 
 export default async function RootLayout({
-  children,
+  children
 }: Readonly<{
-  children: React.ReactNode;
+  children: React.ReactNode
 }>) {
   // Lê o cookie no Servidor
-  const cookieStore = await cookies();
-  const userCookie = cookieStore.get('finflow_user');
-  let initialUser: User | null = null;
+  const cookieStore = await cookies()
+  const userCookie = cookieStore.get("finflow_user")
+  let initialUser: User | null = null
 
   if (userCookie) {
     try {
-      initialUser = JSON.parse(userCookie.value);
+      initialUser = JSON.parse(userCookie.value)
     } catch {
-      initialUser = null;
+      initialUser = null
     }
   }
 
@@ -54,5 +55,5 @@ export default async function RootLayout({
         </QueryProvider>
       </body>
     </html>
-  );
+  )
 }

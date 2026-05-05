@@ -8,8 +8,11 @@ export function ApiSelector() {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setProvider(getApiProvider());
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
+    const saved = getApiProvider();
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setProvider((prev) => (prev !== saved ? saved : prev));
   }, []);
 
   const handleToggle = (newProvider: ApiProvider) => {
