@@ -56,20 +56,6 @@ router.get("/", async (req: AuthRequest, res, next) => {
   }
 })
 
-// GET /api/transactions/:id — buscar transação única
-router.get("/:id", async (req: AuthRequest, res, next) => {
-  try {
-    const transaction = await prisma.transaction.findFirst({
-      where: { id: req.params.id, userId: req.userId! },
-      include: { category: true }
-    })
-    if (!transaction)
-      return res.status(404).json({ error: "Transação não encontrada" })
-    return res.json(transaction)
-  } catch (err) {
-    next(err)
-  }
-})
 
 // GET /api/transactions/summary — totais por categoria
 router.get("/summary", async (req: AuthRequest, res, next) => {
