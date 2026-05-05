@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { getApiProvider, setApiProvider, ApiProvider } from '@/lib/apiConfig';
+import { getApiProvider, setApiProvider, ApiProvider } from '@/lib/api';
 
 export function ApiSelector() {
   const [provider, setProvider] = useState<ApiProvider>('node');
@@ -10,9 +10,11 @@ export function ApiSelector() {
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
-    const saved = getApiProvider();
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setProvider((prev) => (prev !== saved ? saved : prev));
+    // Leitura assíncrona para compatibilidade client/server
+    getApiProvider().then((saved) => {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setProvider((prev) => (prev !== saved ? saved : prev));
+    });
   }, []);
 
   const handleToggle = (newProvider: ApiProvider) => {
