@@ -1,0 +1,33 @@
+<div class="container">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+        <div>
+            <h1>Transações</h1>
+            <p style="color: #94a3b8;">Gerencie suas receitas e despesas.</p>
+        </div>
+        <button hx-get="/transactions/new" hx-target="#form-container" class="btn-primary">
+            Nova Transação
+        </button>
+    </div>
+
+    <div id="form-container"></div>
+
+    <!-- AI Smart Query Assistant (Integrated at Top) -->
+    <%- include('partials/ai-chat') %>
+    
+    <div class="glass" style="margin-top: 2rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <h2 style="font-size: 1.25rem; margin: 0;">Histórico</h2>
+            <button hx-get="/transactions/table" hx-target="#transactions-container" class="btn-primary" style="padding: 0.5rem 1rem; font-size: 0.875rem;">
+                Atualizar
+            </button>
+        </div>
+
+        <div id="transactions-container" 
+             hx-get="/transactions/table" 
+             hx-trigger="load, transactionUpdated from:body">
+            <div style="text-align: center; padding: 3rem;">
+                <p style="color: #94a3b8;">Carregando transações...</p>
+            </div>
+        </div>
+    </div>
+</div>

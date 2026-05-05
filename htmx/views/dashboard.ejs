@@ -1,0 +1,52 @@
+<div class="container dashboard-page">
+    <header class="page-header">
+        <div>
+            <h1>Bem-vindo, <%= user.name %>!</h1>
+            <p>Seu laboratório de finanças com HTMX.</p>
+        </div>
+    </header>
+
+    <!-- AI Insights Section -->
+    <%- include('partials/ai-insights', { insights: null }) %>
+
+    <!-- Resumo (Cards) -->
+    <div 
+        id="dashboard-summary" 
+        hx-get="/transactions/summary" 
+        hx-trigger="load, transactionUpdated from:body"
+        class="summary-grid"
+    >
+        <div class="summary-skeleton">Carregando resumo...</div>
+    </div>
+
+    <div class="dashboard-content" style="display: flex; gap: 1.5rem; flex-wrap: wrap;">
+        <!-- Seção de Gráficos -->
+        <div 
+            id="dashboard-chart" 
+            hx-get="/dashboard/chart" 
+            hx-trigger="load, transactionUpdated from:body"
+            style="flex: 1; min-width: 350px;"
+        >
+            <div class="chart-skeleton glass" style="height: 400px; display: flex; align-items: center; justify-content: center;">
+                Carregando gráficos...
+            </div>
+        </div>
+
+        <!-- Coluna de Info/Ações (Restaurada) -->
+        <div class="quick-actions glass" style="flex: 0 0 350px;">
+            <h3>Visão Geral</h3>
+            <p>Aqui você pode ver como sua saúde financeira está distribuída entre ganhos e gastos.</p>
+            <hr style="opacity: 0.1; margin: 1.5rem 0;">
+            <div class="info-list">
+                <div class="info-item">
+                    <span>💡 Dica:</span>
+                    <p>Tente manter suas saídas abaixo de 70% da sua renda.</p>
+                </div>
+            </div>
+            <a href="/transactions" class="btn btn-primary" style="display: block; text-align: center; margin-top: 2rem;">
+                Gerenciar Transações
+            </a>
+        </div>
+    </div>
+</div>
+

@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FinFlow - HTMX</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+</head>
+<body>
+    <header style="background: rgba(30, 41, 59, 0.8); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255,255,255,0.05); padding: 0.75rem 0; position: sticky; top: 0; z-index: 100;">
+        <div class="header-content">
+            <div style="font-weight: 800; font-size: 1.25rem; background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: -0.02em;">
+                FinFlow
+            </div>
+            <nav style="display: flex; gap: 2rem; align-items: center;">
+                <a href="/" style="color: #94a3b8; text-decoration: none; font-size: 0.875rem; font-weight: 600; transition: color 0.2s;" onmouseover="this.style.color='#f8fafc'" onmouseout="this.style.color='#94a3b8'">Dashboard</a>
+                <a href="/transactions" style="color: #94a3b8; text-decoration: none; font-size: 0.875rem; font-weight: 600; transition: color 0.2s;" onmouseover="this.style.color='#f8fafc'" onmouseout="this.style.color='#94a3b8'">Transações</a>
+            </nav>
+            <div id="user-nav" style="display: flex; align-items: center; gap: 1.5rem;">
+                <a href="/auth/logout" style="color: #f43f5e; text-decoration: none; font-size: 0.875rem; font-weight: 600; opacity: 0.8; transition: opacity 0.2s;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.8'">Sair</a>
+            </div>
+        </div>
+    </header>
+    <main>
+        <%- body %>
+    </main>
+
+</body>
+</html>
