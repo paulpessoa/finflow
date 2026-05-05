@@ -1,17 +1,13 @@
 version: '3.9'
 
 services:
-  # ── Banco de dados ──────────────────────────────────────────
   postgres:
     image: postgres:16-alpine
     container_name: finflow_db
-    restart: unless-stopped
     environment:
       POSTGRES_USER: finflow
-      POSTGRES_PASSWORD: finflow123
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-finflow123}
       POSTGRES_DB: finflow_db
-    ports:
-      - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -20,39 +16,36 @@ services:
       timeout: 5s
       retries: 5
 
-  # ── Backend (Node/Express) ───────────────────────────────────
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
     container_name: finflow_api
-    restart: unless-stopped
     depends_on:
       postgres:
         condition: service_healthy
     environment:
-      DATABASE_URL: postgresql://finflow:finflow123@postgres:5432/finflow_db
+      DATABASE_URL: postgresql://finflow:${DB_PASSWORD:-finflow123}@postgres:5432/finflow_db
       PORT: 3001
-      JWT_SECRET: ${JWT_SECRET:-supersecret_troque_em_producao}
+      JWT_SECRET: ${JWT_SECRET:-supersecret_prod}
       NODE_ENV: production
+      FRONTEND_URL: http://localhost:4000
     ports:
       - "3001:3001"
 
-  # ── Frontend (Next.js) ───────────────────────────────────────
-  frontend:
+  htmx:
     build:
-      context: ./frontend
+      context: ./htmx
       dockerfile: Dockerfile
-    container_name: finflow_web
-    restart: unless-stopped
+    container_name: finflow_htmx
     depends_on:
       - backend
     environment:
-      NEXT_PUBLIC_API_URL: http://localhost:3001
-      NEXT_PUBLIC_NODE_API_URL: http://localhost:3001
-      NEXT_PUBLIC_GO_API_URL: http://localhost:3002
+      API_URL: http://backend:3001/api
+      HTMX_PORT: 4000
+      NODE_ENV: production
     ports:
-      - "3000:3000"
+      - "4000:4000"
 
 volumes:
   postgres_data:
