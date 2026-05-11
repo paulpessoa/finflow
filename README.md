@@ -83,6 +83,12 @@ A API está hospedada em: [https://finflow-1-a2aj.onrender.com](https://finflow-
 ### URL do Frontend (Vercel)
 A interface está disponível em: [https://finflow-orpin.vercel.app](https://finflow-orpin.vercel.app)
 
+### Versão HTMX (Render)
+A versão do dashboard feita com HTMX está disponível em: [https://finflow-htmx.onrender.com/](https://finflow-htmx.onrender.com/)
+
+### Backend Python (Em Breve)
+Estamos desenvolvendo uma nova versão do backend utilizando Python (FastAPI), que estará disponível em um novo endpoint em breve.
+
 ---
 
 ## ⚙️ Configuração de Variáveis em Produção
