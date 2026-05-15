@@ -26,7 +26,7 @@ export function ApiStatusBadge() {
     );
   }
 
-  if (data?.status === 'ok') {
+  if (data?.status === 'ok' || data?.status === 'healthy') {
     return (
       <div className="flex items-center gap-2 rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-700 dark:bg-green-900/30 dark:text-green-400">
         <span className="h-2 w-2 rounded-full bg-green-500"></span>
