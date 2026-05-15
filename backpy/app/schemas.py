@@ -66,11 +66,19 @@ class TransactionResponse(TransactionBase):
         from_attributes = True
 
 # --- Schemas de Dashboard ---
+class CategorySummary(BaseModel):
+    id: str
+    name: str
+    color: str
+    icon: str
+    total: Decimal
+
 class DashboardSummary(BaseModel):
     income: Decimal
     expense: Decimal
     balance: Decimal
     transactionCount: int
+    byCategory: List[CategorySummary]
 
 # --- Schemas de Auth ---
 class Token(BaseModel):
