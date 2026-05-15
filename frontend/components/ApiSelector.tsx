@@ -49,6 +49,16 @@ export function ApiSelector() {
       >
         Golang
       </button>
+      <button
+        onClick={() => handleToggle('python')}
+        className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all cursor-pointer ${
+          provider === 'python'
+            ? 'bg-sky-600 text-white shadow-sm'
+            : 'text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200'
+        }`}
+      >
+        Python (HF)
+      </button>
     </div>
   );
 }

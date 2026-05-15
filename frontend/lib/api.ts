@@ -1,11 +1,11 @@
 import Cookies from "js-cookie"
 
-export type ApiProvider = "node" | "go"
+export type ApiProvider = "node" | "go" | "python"
 const PROVIDER_COOKIE_KEY = "finflow_api_provider"
 const TOKEN_COOKIE_KEY = "finflow_token"
 
 /**
- * Retorna o provedor de API atual (node ou go).
+ * Retorna o provedor de API atual (node, go ou python).
  * Funciona tanto no Client quanto no Server.
  */
 export async function getApiProvider(): Promise<ApiProvider> {
@@ -40,6 +40,9 @@ export async function getApiUrl(): Promise<string> {
   const provider = await getApiProvider();
   if (provider === 'go') {
     return process.env.NEXT_PUBLIC_GO_API_URL || "http://localhost:3002";
+  }
+  if (provider === 'python') {
+    return process.env.NEXT_PUBLIC_PYTHON_API_URL || "https://paulpessoa-finflow-python.hf.space";
   }
   // Fallback para a variável antiga caso o usuário não tenha migrado o .env
   return process.env.NEXT_PUBLIC_NODE_API_URL || process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
