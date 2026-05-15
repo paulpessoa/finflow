@@ -15,19 +15,19 @@ def generate_uuid():
     return str(uuid.uuid4())
 
 class User(Base):
-    __tablename__ = "users"
+    __tablename__ = "User"
 
     id = Column(String, primary_key=True, default=generate_uuid)
     email = Column(String, unique=True, index=True, nullable=False)
     name = Column(String, nullable=False)
-    password_hash = Column(String, nullable=False)
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
-    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+    password_hash = Column("passwordHash", String, nullable=False)
+    created_at = Column("createdAt", DateTime(timezone=True), server_default=func.now())
+    updated_at = Column("updatedAt", DateTime(timezone=True), onupdate=func.now())
 
     transactions = relationship("Transaction", back_populates="user", cascade="all, delete-orphan")
 
 class Category(Base):
-    __tablename__ = "categories"
+    __tablename__ = "Category"
 
     id = Column(String, primary_key=True, default=generate_uuid)
     name = Column(String, unique=True, nullable=False)
@@ -37,7 +37,7 @@ class Category(Base):
     transactions = relationship("Transaction", back_populates="category")
 
 class Transaction(Base):
-    __tablename__ = "transactions"
+    __tablename__ = "Transaction"
 
     id = Column(String, primary_key=True, default=generate_uuid)
     description = Column(String, nullable=False)
@@ -45,17 +45,17 @@ class Transaction(Base):
     type = Column(Enum(TransactionType), nullable=False)
     date = Column(DateTime(timezone=True), nullable=False)
     notes = Column(String, nullable=True)
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
-    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+    created_at = Column("createdAt", DateTime(timezone=True), server_default=func.now())
+    updated_at = Column("updatedAt", DateTime(timezone=True), onupdate=func.now())
 
-    user_id = Column(String, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
-    category_id = Column(String, ForeignKey("categories.id"), nullable=False)
+    user_id = Column("userId", String, ForeignKey("User.id", ondelete="CASCADE"), nullable=False)
+    category_id = Column("categoryId", String, ForeignKey("Category.id"), nullable=False)
 
     user = relationship("User", back_populates="transactions")
     category = relationship("Category", back_populates="transactions")
 
     # Índices Estratégicos (Performance para a Plank!)
     __table_args__ = (
-        Index('ix_user_date', 'user_id', 'date'),
-        Index('ix_user_type', 'user_id', 'type'),
+        Index('ix_user_date', 'userId', 'date'),
+        Index('ix_user_type', 'userId', 'type'),
     )
