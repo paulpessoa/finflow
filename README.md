@@ -14,11 +14,33 @@ FinFlow é um painel de controle de finanças pessoais completo, focado em perfo
 - **Formulários:** React Hook Form + Zod
 - **Gráficos:** Recharts
 
-### Backend
+### Backend (Node.js — Primary)
 - **Framework:** Node.js + Express
 - **ORM:** Prisma 5
 - **Banco de Dados:** PostgreSQL
 - **Autenticação:** JWT (JSON Web Tokens) com Cookies seguros
+- **AI Engine:** Groq API (LLaMA 3.3 70B) com Server-Sent Events (SSE) Streaming
+
+### Backend Alternativo (Go)
+- **Framework:** Go + Gin
+- **ORM:** GORM
+- **Padrão:** Repository Pattern + Clean Architecture
+
+### Backend Alternativo (Python) — Em desenvolvimento
+- **Framework:** FastAPI
+- **ORM:** SQLAlchemy 2
+- **Validação:** Pydantic 2
+
+---
+
+## 🤖 AI-Powered Financial Insights
+
+FinFlow integra a **Groq API** (modelo LLaMA 3.3 70B Versatile) para análise financeira inteligente:
+
+- **Structured Insights** (`POST /api/ai/insights`): Analisa os últimos 30 dias de transações e retorna rating de saúde financeira, insights categorizados, plano de ação e dados para gráficos — tudo validado por Zod schema.
+- **Quick Ask Streaming** (`POST /api/streaming/ask`): Perguntas livres sobre suas finanças com resposta em tempo real via **Server-Sent Events (SSE)**. O frontend lê o stream chunk a chunk com a ReadableStream API nativa.
+- **Design Patterns:** Strategy Pattern + Factory para trocar providers de IA (Groq, OpenAI, Gemini) sem alterar rotas. Rate limiting em memória (10 requests/dia por usuário).
+- **Prompt Engineering:** Sistema de regras financeiras inegociáveis (Regra dos 30%, Categoria Dominante, Reserva de Emergência) embutidas no system prompt.
 
 ---
 
@@ -37,6 +59,7 @@ Crie um arquivo `.env` na raiz do projeto e dentro das pastas `backend` e `front
 ```env
 DATABASE_URL="postgresql://user:password@localhost:5432/finflow?schema=public"
 JWT_SECRET="sua_chave_secreta_aqui"
+GROQ_API_KEY="sua_chave_groq_aqui"
 PORT=3001
 ```
 
