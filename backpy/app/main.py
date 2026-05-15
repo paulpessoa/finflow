@@ -30,6 +30,14 @@ async def root():
         "status": "healthy"
     }
 
-# Aqui depois incluiremos os roteadores:
-# app.include_router(auth.router, prefix="/api/auth", tags=["auth"])
-# app.include_router(transactions.router, prefix="/api/transactions", tags=["transactions"])
+@app.get("/health")
+async def health():
+    return {"status": "healthy"}
+
+from . import auth, transactions, categories, ai_router
+
+# Incluir os roteadores (Endpoints)
+app.include_router(auth.router, prefix="/api/auth", tags=["Auth"])
+app.include_router(transactions.router, prefix="/api/transactions", tags=["Transactions"])
+app.include_router(categories.router, prefix="/api/categories", tags=["Categories"])
+app.include_router(ai_router.router, prefix="/api/ai", tags=["AI"])
