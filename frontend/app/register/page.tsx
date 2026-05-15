@@ -8,6 +8,7 @@ import { useRegister } from '@/hooks/useAuthHooks';
 import { useAuth } from '@/contexts/AuthContext';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { ApiSelector } from '@/components/ApiSelector';
 
 const registerSchema = z.object({
   name: z.string().min(3, 'O nome deve ter no mínimo 3 caracteres'),
@@ -53,13 +54,16 @@ export default function RegisterPage() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-zinc-50 px-4 dark:bg-zinc-950">
       <div className="w-full max-w-sm space-y-8">
-        <div className="text-center">
+        <div className="text-center flex flex-col items-center">
           <h1 className="text-3xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
             Criar Conta
           </h1>
           <p className="mt-2 text-zinc-600 dark:text-zinc-400">
             Junte-se ao FinFlow e assuma o controle
           </p>
+          <div className="mt-4">
+            <ApiSelector />
+          </div>
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="mt-8 space-y-6">

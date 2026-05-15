@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import Link from 'next/link';
 import { ApiStatusBadge } from '@/components/ApiStatusBadge';
+import { ApiSelector } from '@/components/ApiSelector';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -35,6 +36,9 @@ export default function LoginPage() {
           <p className="mt-2 text-zinc-600 dark:text-zinc-400">
             Acesse sua conta para gerenciar suas finanças
           </p>
+          <div className="mt-4">
+            <ApiSelector />
+          </div>
         </div>
 
         <form onSubmit={handleSubmit} className="mt-8 space-y-6">
