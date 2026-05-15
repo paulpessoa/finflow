@@ -8,15 +8,56 @@ from . import models, schemas, database, auth
 
 router = APIRouter()
 
-@router.get("", response_model=List[schemas.TransactionResponse])
+@router.get("", response_model=schemas.TransactionListResponse)
 def list_transactions(
+    page: int = 1,
+    limit: int = 10,
+    type: Optional[models.TransactionType] = None,
+    from_date: Optional[str] = None,
+    to_date: Optional[str] = None,
+    category_id: Optional[str] = None,
     db: Session = Depends(database.get_db),
     current_user: models.User = Depends(auth.get_current_user)
 ):
-    """Lista todas as transações do usuário logado."""
-    return db.query(models.Transaction).filter(
+    """Lista as transações do usuário com filtros e paginação."""
+    query = db.query(models.Transaction).options(joinedload(models.Transaction.category)).filter(
         models.Transaction.user_id == current_user.id
-    ).order_by(models.Transaction.date.desc()).all()
+    )
+
+    if type:
+        query = query.filter(models.Transaction.type == type)
+    if category_id:
+        query = query.filter(models.Transaction.category_id == category_id)
+    if from_date:
+        try:
+            dt_from = datetime.fromisoformat(from_date.replace("Z", "+00:00"))
+            query = query.filter(models.Transaction.date >= dt_from)
+        except ValueError:
+            pass
+    if to_date:
+        try:
+            dt_to = datetime.fromisoformat(to_date.replace("Z", "+00:00"))
+            query = query.filter(models.Transaction.date <= dt_to)
+        except ValueError:
+            pass
+
+    total = query.count()
+
+    offset = (page - 1) * limit
+    transactions = query.order_by(models.Transaction.date.desc()).offset(offset).limit(limit).all()
+
+    import math
+    pages = math.ceil(total / limit) if limit > 0 else 1
+
+    return {
+        "data": transactions,
+        "meta": {
+            "total": total,
+            "page": page,
+            "limit": limit,
+            "pages": pages
+        }
+    }
 
 @router.post("", response_model=schemas.TransactionResponse, status_code=status.HTTP_201_CREATED)
 def create_transaction(

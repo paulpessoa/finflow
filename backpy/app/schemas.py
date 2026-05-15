@@ -80,6 +80,17 @@ class DashboardSummary(BaseModel):
     transactionCount: int
     byCategory: List[CategorySummary]
 
+# --- Schemas de Paginação ---
+class MetaPagination(BaseModel):
+    total: int
+    page: int
+    limit: int
+    pages: int
+
+class TransactionListResponse(BaseModel):
+    data: List[TransactionResponse]
+    meta: MetaPagination
+
 # --- Schemas de Auth ---
 class Token(BaseModel):
     token: str
