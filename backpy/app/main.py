@@ -34,10 +34,11 @@ async def root():
 async def health():
     return {"status": "healthy"}
 
-from . import auth, transactions, categories, ai_router
+from . import auth, transactions, categories, ai_router, streaming
 
 # Incluir os roteadores (Endpoints)
 app.include_router(auth.router, prefix="/api/auth", tags=["Auth"])
 app.include_router(transactions.router, prefix="/api/transactions", tags=["Transactions"])
 app.include_router(categories.router, prefix="/api/categories", tags=["Categories"])
 app.include_router(ai_router.router, prefix="/api/ai", tags=["AI"])
+app.include_router(streaming.router, prefix="/api/streaming", tags=["Streaming"])

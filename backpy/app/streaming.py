@@ -1,26 +1,29 @@
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session, joinedload
 from datetime import datetime, timedelta
 from . import database, auth, models, ai
+from pydantic import BaseModel
 
 router = APIRouter()
 ai_service = ai.AiService()
 
-@router.post("/insights")
-async def get_insights(
+class AskRequest(BaseModel):
+    question: str
+
+@router.post("/ask")
+async def ask_question(
+    request: AskRequest,
     db: Session = Depends(database.get_db),
     current_user: models.User = Depends(auth.get_current_user)
 ):
-    """Analisa as transações do usuário nos últimos 30 dias e retorna insights estruturados em JSON."""
+    """Analisa a pergunta do usuário baseando-se nas transações dos últimos 30 dias."""
     thirty_days_ago = datetime.utcnow() - timedelta(days=30)
     
     transactions = db.query(models.Transaction).options(joinedload(models.Transaction.category)).filter(
         models.Transaction.user_id == current_user.id,
         models.Transaction.date >= thirty_days_ago
     ).all()
-
-    if not transactions:
-        raise HTTPException(status_code=400, detail="Transações insuficientes para análise.")
 
     total_income = sum(t.amount for t in transactions if t.type == models.TransactionType.INCOME)
     total_expense = sum(t.amount for t in transactions if t.type == models.TransactionType.EXPENSE)
@@ -31,17 +34,14 @@ async def get_insights(
             cat_name = t.category.name
             expenses_by_category[cat_name] = expenses_by_category.get(cat_name, 0.0) + float(t.amount)
 
-    financial_data = {
-        "period": "Últimos 30 dias",
+    financial_context = {
         "totalIncome": float(total_income),
         "totalExpense": float(total_expense),
         "balance": float(total_income - total_expense),
         "expensesByCategory": expenses_by_category
     }
 
-    result = await ai_service.get_insights_json(financial_data)
-    
-    if "error" in result:
-        raise HTTPException(status_code=500, detail=result["error"])
-        
-    return result
+    return StreamingResponse(
+        ai_service.stream_ask(request.question, financial_context),
+        media_type="text/event-stream"
+    )
