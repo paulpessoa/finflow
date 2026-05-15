@@ -1,20 +1,19 @@
 from pydantic import BaseModel, EmailStr, Field
 from datetime import datetime
-from typing import List, Optional
+from typing import Optional, List
+from .models import TransactionType
 from decimal import Decimal
-from enum import Enum
 
-# Enum para validação no Pydantic
-class TransactionType(str, Enum):
-    INCOME = "INCOME"
-    EXPENSE = "EXPENSE"
-
-# Esquemas de Usuário
+# --- Schemas de Usuário ---
 class UserBase(BaseModel):
     email: EmailStr
     name: str
 
 class UserCreate(UserBase):
+    password: str
+
+class UserLogin(BaseModel):
+    email: EmailStr
     password: str
 
 class UserResponse(UserBase):
@@ -24,11 +23,11 @@ class UserResponse(UserBase):
     class Config:
         from_attributes = True
 
-# Esquemas de Categoria
+# --- Schemas de Categoria ---
 class CategoryBase(BaseModel):
     name: str
-    color: str = "#6366f1"
-    icon: str = "💰"
+    color: str
+    icon: str
 
 class CategoryResponse(CategoryBase):
     id: str
@@ -36,7 +35,7 @@ class CategoryResponse(CategoryBase):
     class Config:
         from_attributes = True
 
-# Esquemas de Transação
+# --- Schemas de Transação ---
 class TransactionBase(BaseModel):
     description: str
     amount: Decimal
@@ -48,17 +47,35 @@ class TransactionBase(BaseModel):
 class TransactionCreate(TransactionBase):
     pass
 
+class TransactionUpdate(BaseModel):
+    description: Optional[str] = None
+    amount: Optional[Decimal] = None
+    type: Optional[TransactionType] = None
+    date: Optional[datetime] = None
+    notes: Optional[str] = None
+    category_id: Optional[str] = None
+
 class TransactionResponse(TransactionBase):
     id: str
     user_id: str
     created_at: datetime
-    category: CategoryResponse
+    updated_at: Optional[datetime] = None
+    category: Optional[CategoryResponse] = None
 
     class Config:
         from_attributes = True
 
-# Esquema para o Sumário (Dashboard)
+# --- Schemas de Dashboard ---
 class DashboardSummary(BaseModel):
-    total_income: Decimal
-    total_expense: Decimal
+    income: Decimal
+    expense: Decimal
     balance: Decimal
+    transactionCount: int
+
+# --- Schemas de Auth ---
+class Token(BaseModel):
+    token: str
+    user: dict
+
+class TokenData(BaseModel):
+    email: Optional[str] = None
