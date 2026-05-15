@@ -7,7 +7,7 @@ from . import models, schemas, database, auth
 
 router = APIRouter()
 
-@router.get("/", response_model=List[schemas.TransactionResponse])
+@router.get("", response_model=List[schemas.TransactionResponse])
 def list_transactions(
     db: Session = Depends(database.get_db),
     current_user: models.User = Depends(auth.get_current_user)
@@ -17,7 +17,7 @@ def list_transactions(
         models.Transaction.user_id == current_user.id
     ).order_by(models.Transaction.date.desc()).all()
 
-@router.post("/", response_model=schemas.TransactionResponse, status_code=status.HTTP_201_CREATED)
+@router.post("", response_model=schemas.TransactionResponse, status_code=status.HTTP_201_CREATED)
 def create_transaction(
     transaction: schemas.TransactionCreate,
     db: Session = Depends(database.get_db),
