@@ -375,3 +375,53 @@ h1 {
     }
 }
 
+/* Backend Status Indicator */
+.status-online, .status-offline {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+    padding: 0.4rem 0.8rem;
+    border-radius: 2rem;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.status-online { color: #10b981; }
+.status-offline { color: #ef4444; flex-direction: column; gap: 0.75rem; }
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #10b981;
+    box-shadow: 0 0 10px #10b981;
+}
+
+.status-dot.red {
+    background: #ef4444;
+    box-shadow: 0 0 10px #ef4444;
+}
+
+.btn-wake {
+    background: #6366f1;
+    color: white;
+    border: none;
+    padding: 0.3rem 0.75rem;
+    border-radius: 0.5rem;
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-wake:hover {
+    background: #4f46e5;
+    transform: translateY(-1px);
+}
+
+.status-loading {
+    font-size: 0.85rem;
+    color: #94a3b8;
+    font-style: italic;
+}
+
+

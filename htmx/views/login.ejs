@@ -4,6 +4,14 @@
             <h2 style="margin: 0 0 0.5rem 0; font-size: 1.75rem;">Bem-vindo</h2>
             <p style="color: #94a3b8; margin: 0; font-size: 0.9rem;">Acesse sua conta no FinFlow</p>
         </div>
+
+        <!-- Backend Status Check -->
+        <div id="backend-status" 
+             hx-get="/health-check" 
+             hx-trigger="load" 
+             style="margin-bottom: 2rem; display: flex; justify-content: center;">
+            <div class="status-loading">Verificando API...</div>
+        </div>
         
         <div id="auth-message"></div>
 

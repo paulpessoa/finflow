@@ -67,6 +67,29 @@ app.get('/register', (req, res) => {
     res.render('register');
 });
 
+// Health Check do Backend (para acordar o Render)
+app.get('/health-check', async (req, res) => {
+    try {
+        // Tenta remover o /api do final se existir para pegar o /health da raiz
+        const rootUrl = API_BASE.endsWith('/api') ? API_BASE.slice(0, -4) : API_BASE;
+        await axios.get(`${rootUrl}/health`, { timeout: 5000 });
+        res.send(`
+            <div class="status-online">
+                <span class="status-dot"></span> API Online
+            </div>
+        `);
+    } catch (error) {
+        res.send(`
+            <div class="status-offline">
+                <span class="status-dot red"></span> API Offline
+                <button class="btn-wake" hx-get="/health-check" hx-target="closest div" hx-swap="outerHTML">
+                    Acordar Backend
+                </button>
+            </div>
+        `);
+    }
+});
+
 
 // Ações HTMX - Auth
 app.get('/auth/logout', (req, res) => {
